@@ -26,15 +26,14 @@ def generate_valid_words(rack: str):
         return {''.join(p) for i in range(2, len(rack) + 1) for p in permutations(rack, i) if ''.join(p) in VALID_WORDS}
 
     possible_words = set()
-    base_rack = rack.replace('*', '').replace('?', '')  # Remove wildcards
 
     # Find wildcard positions
     wildcard_positions = [pos for pos, char in enumerate(rack) if char in '*?']
-    
+
     # Generate all possible wildcard replacements (A-Z)
     wildcard_replacements = product("ABCDEFGHIJKLMNOPQRSTUVWXYZ", repeat=len(wildcard_positions))
 
-    # Replace wildcards with all letters and generate words
+    # Replace wildcards and generate words
     for replacement in wildcard_replacements:
         temp_rack = list(rack)
         for i, letter in enumerate(replacement):
@@ -50,26 +49,6 @@ def generate_valid_words(rack: str):
                     possible_words.add(word)
 
     return possible_words
-
-
-
-def can_form_word(word, rack):
-    """
-    Check if a word can be formed from the rack, considering wildcards.
-    """
-    rack_letters = list(rack.replace('*', '').replace('?', ''))  # Remove wildcards
-    wildcards = rack.count('*') + rack.count('?')
-
-    for letter in word:
-        if letter in rack_letters:
-            rack_letters.remove(letter)  # Use a letter from rack
-        elif wildcards > 0:
-            wildcards -= 1  # Use a wildcard
-        else:
-            return False  # Not enough letters or wildcards
-
-    return True
-
 
 
 def run_scrabble(rack: str):
@@ -99,12 +78,13 @@ def run_scrabble(rack: str):
     # Compute scores, treating wildcards as 0 points
     def adjusted_score(word):
         """Compute the Scrabble score, treating wildcards as 0 points."""
-        score = score_word(word)
-        for char in rack:
-            if char in '*?':
-                score -= score_word(char)  # Deduct wildcard points
+        score = score_word(word)  # Compute original score
+        for char in word:
+            if char in '*?':  # Wildcards should contribute 0 points
+                score -= score_word(char)  # Deduct the wildcard letter value
         return max(0, score)
 
+    # Generate (score, word) tuples
     scored_words = [(adjusted_score(word), word) for word in valid_words]
 
     # Sort by score (descending) and then alphabetically
