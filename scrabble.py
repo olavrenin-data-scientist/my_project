@@ -1,75 +1,113 @@
+# scrabble.py
+
 from itertools import permutations, product
-from wordscore import score_word 
+from wordscore import score_word
 
-class ScrabbleSolver:
-    def __init__(self, dictionary_file="sowpods.txt"):
-        self.valid_words = self.load_scrabble_dictionary(dictionary_file)
+def load_scrabble_dictionary():
+    """
+    Load the SOWPODS dictionary into a set for quick lookup.
+    """
+    with open("sowpods.txt", "r") as infile:
+        return {word.strip().upper() for word in infile.readlines()}
 
-    def load_scrabble_dictionary(self, dictionary_file):
-        """Load the Scrabble dictionary from a file."""
-        try:
-            with open(dictionary_file, "r") as infile:
-                return {word.strip().upper() for word in infile}
-        except FileNotFoundError:
-            print(f"Error: Dictionary file '{dictionary_file}' not found.")
-            return set()  # Return an empty set if the file is not found.
+# Global dictionary (fast lookups)
+VALID_WORDS = load_scrabble_dictionary()
 
-    def generate_valid_words(self, rack: str):
-        """Generate valid Scrabble words from a rack, handling wildcards."""
-        rack = rack.upper()
-        wildcards = rack.count('*') + rack.count('?')
 
-        if wildcards == 0:
-            return {''.join(p) for i in range(2, len(rack) + 1) for p in permutations(rack, i) if ''.join(p) in self.valid_words}
+def generate_valid_words(rack: str):
+    """
+    Generate all valid Scrabble words from the given rack, considering wildcards (*, ?).
+    """
+    rack = rack.upper()
+    wildcards = rack.count('*') + rack.count('?')
 
-        possible_words = set()
-        wildcard_positions = [i for i, char in enumerate(rack) if char in '*?']
+    # If no wildcards, generate normal permutations
+    if wildcards == 0:
+        return {''.join(p) for i in range(2, len(rack) + 1) for p in permutations(rack, i) if ''.join(p) in VALID_WORDS}
 
-        for replacement in product("ABCDEFGHIJKLMNOPQRSTUVWXYZ", repeat=len(wildcard_positions)):
-            temp_rack = list(rack)
-            for i, letter in enumerate(replacement):
-                temp_rack[wildcard_positions[i]] = letter
+    possible_words = set()
+    base_rack = rack.replace('*', '').replace('?', '')  # Remove wildcards
 
-            replaced_rack = "".join(temp_rack)
+    # Find wildcard positions
+    wildcard_positions = [pos for pos, char in enumerate(rack) if char in '*?']
+    
+    # Generate all possible wildcard replacements (A-Z)
+    wildcard_replacements = product("ABCDEFGHIJKLMNOPQRSTUVWXYZ", repeat=len(wildcard_positions))
 
-            for i in range(2, len(replaced_rack) + 1):
-                for perm in permutations(replaced_rack, i):
-                    word = "".join(perm)
-                    if word in self.valid_words:
-                        possible_words.add(word)
+    # Replace wildcards with all letters and generate words
+    for replacement in wildcard_replacements:
+        temp_rack = list(rack)
+        for i, letter in enumerate(replacement):
+            temp_rack[wildcard_positions[i]] = letter  # Replace wildcard
 
-        return possible_words
+        replaced_rack = ''.join(temp_rack)
 
-    def run_scrabble(self, rack: str):
-        """Find valid Scrabble words, score them, and return results."""
-        # Input Validation
-        if not isinstance(rack, str):
-            return "Error: Input must be a string."
+        # Generate permutations and check dictionary
+        for i in range(2, len(replaced_rack) + 1):
+            for perm in permutations(replaced_rack, i):
+                word = "".join(perm)
+                if word in VALID_WORDS:
+                    possible_words.add(word)
 
-        if not all(char.isalpha() or char in ['*', '?'] for char in rack):
-            return "Error: Invalid characters in rack. Use A-Z, *, or ?."
+    return possible_words
 
-        if not (2 <= len(rack) <= 7):
-            return "Error: Rack length must be between 2 and 7."
 
-        if rack.count('*') > 2 or rack.count('?') > 2 or rack.count('*') + rack.count('?') > 2:  # Combined check
-          return "Error: Maximum of two wildcards allowed (any combination)."
 
-        valid_words = self.generate_valid_words(rack)
+def can_form_word(word, rack):
+    """
+    Check if a word can be formed from the rack, considering wildcards.
+    """
+    rack_letters = list(rack.replace('*', '').replace('?', ''))  # Remove wildcards
+    wildcards = rack.count('*') + rack.count('?')
 
-        def adjusted_score(word):
-            score = 0
-            for char in word:
-                if char in rack:  # Directly check if character is in rack
-                    score += score_word(char)
-                elif '*' in rack or '?' in rack:  # Wildcard used
-                    score += score_word(char)  # Score as if wildcard was that letter.
-                else:
-                    return 0 # If letter not present in rack, word is not valid.
+    for letter in word:
+        if letter in rack_letters:
+            rack_letters.remove(letter)  # Use a letter from rack
+        elif wildcards > 0:
+            wildcards -= 1  # Use a wildcard
+        else:
+            return False  # Not enough letters or wildcards
 
-            return score
+    return True
 
-        scored_words = [(adjusted_score(word), word) for word in valid_words if adjusted_score(word) > 0]
-        sorted_words = sorted(scored_words, key=lambda x: (-x[0], x[1]))
 
-        return sorted_words, len(sorted_words)
+
+def run_scrabble(rack: str):
+    """
+    Find all valid Scrabble words that can be formed from a given rack.
+
+    Parameters:
+    rack (str): The letter tiles available (2-7 characters, A-Z, at most one '*' and one '?').
+
+    Returns:
+    tuple: A list of (score, word) tuples sorted by score (descending) and alphabetically, 
+           and the total count of valid words.
+    """
+    # Input validation
+    if not all(char.isalpha() or char in ['*', '?'] for char in rack):
+        return "Error: Input should only contain letters (A-Z) and at most two wildcards (*, ?)."
+
+    if not (2 <= len(rack) <= 7):
+        return "Error: The letter rack should contain between 2 and 7 characters."
+
+    if rack.count('*') > 1 or rack.count('?') > 1:
+        return "Error: A maximum of one '*' and one '?' wildcard is allowed."
+
+    # Generate valid words
+    valid_words = generate_valid_words(rack)
+
+    # Compute scores, treating wildcards as 0 points
+    def adjusted_score(word):
+        """Compute the Scrabble score, treating wildcards as 0 points."""
+        score = score_word(word)
+        for char in rack:
+            if char in '*?':
+                score -= score_word(char)  # Deduct wildcard points
+        return max(0, score)
+
+    scored_words = [(adjusted_score(word), word) for word in valid_words]
+
+    # Sort by score (descending) and then alphabetically
+    sorted_words = sorted(scored_words, key=lambda x: (-x[0], x[1]))
+
+    return sorted_words, len(sorted_words)
