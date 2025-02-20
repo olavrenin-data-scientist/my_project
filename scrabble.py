@@ -1,50 +1,81 @@
 # scrabble.py
 
-from itertools import permutations, combinations
+from itertools import permutations, product
 from wordscore import score_word
 
 def load_scrabble_dictionary():
+    """Load the SOWPODS dictionary into a set for quick lookup."""
     with open("sowpods.txt", "r") as infile:
         return {word.strip().upper() for word in infile.readlines()}
 
+# Load dictionary once globally
 VALID_WORDS = load_scrabble_dictionary()
 
+
 def generate_valid_words(rack: str):
+    """
+    Generate all valid Scrabble words from the given rack, considering wildcards (*, ?).
+    """
     rack = rack.upper()
     wildcards = rack.count('*') + rack.count('?')
 
-    base_letters = rack.replace('*', '').replace('?', '')
+    # Base case: No wildcards, use normal permutations
+    if wildcards == 0:
+        return {''.join(p) for i in range(2, len(rack) + 1) for p in permutations(rack, i) if ''.join(p) in VALID_WORDS}
 
+    # Step 1: Replace wildcards with all letters A-Z
     possible_words = set()
+    base_rack = rack.replace('*', '').replace('?', '')  # Remove wildcards
 
-    for i in range(2, len(rack) + 1):
-        for perm in permutations(base_letters, i):
-            word = "".join(perm)
-            if word in VALID_WORDS:
-                possible_words.add(word)
+    # Step 2: Generate all wildcard replacements
+    wildcard_positions = [pos for pos, char in enumerate(rack) if char in '*?']
+    wildcard_replacements = product("ABCDEFGHIJKLMNOPQRSTUVWXYZ", repeat=len(wildcard_positions))
 
-    if wildcards > 0:
-        for word in VALID_WORDS:
-            if can_form_word(word, rack):
-                possible_words.add(word)
+    # Step 3: Replace wildcards and generate words
+    for replacement in wildcard_replacements:
+        temp_rack = list(rack)
+        for i, letter in enumerate(replacement):
+            temp_rack[wildcard_positions[i]] = letter
+
+        replaced_rack = ''.join(temp_rack)
+
+        # Generate permutations and check against the dictionary
+        for i in range(2, len(replaced_rack) + 1):
+            for perm in permutations(replaced_rack, i):
+                word = "".join(perm)
+                if word in VALID_WORDS:
+                    possible_words.add(word)
 
     return possible_words
 
+
 def can_form_word(word, rack):
-    rack_letters = list(rack.replace('*', '').replace('?', ''))
+    """
+    Check if a word can be formed from the rack, considering wildcards.
+    """
+    rack_letters = list(rack.replace('*', '').replace('?', ''))  # Remove wildcards
     wildcards = rack.count('*') + rack.count('?')
 
     for letter in word:
         if letter in rack_letters:
-            rack_letters.remove(letter) 
+            rack_letters.remove(letter)  # Use a letter from rack
         elif wildcards > 0:
-            wildcards -= 1 
+            wildcards -= 1  # Use a wildcard
         else:
-            return False 
+            return False  # Not enough letters or wildcards
 
     return True
 
+
+
 def run_scrabble(rack: str):
+    """
+    Main function to find all valid Scrabble words from a rack.
+    Returns:
+    - List of (score, word) tuples, sorted by score (descending) and alphabetically.
+    - Total number of valid words.
+    """
+    # Input validation
     if not all(char.isalpha() or char in ['*', '?'] for char in rack):
         return "Error: Input should only contain letters (A-Z) and at most two wildcards (*, ?)."
 
@@ -54,17 +85,22 @@ def run_scrabble(rack: str):
     if rack.count('*') > 1 or rack.count('?') > 1:
         return "Error: A maximum of one '*' and one '?' wildcard is allowed."
 
+    # Generate valid words
     valid_words = generate_valid_words(rack)
 
+    # Compute scores, treating wildcards as 0 points
     def adjusted_score(word):
+        """Compute the Scrabble score, treating wildcards as 0 points."""
         score = score_word(word)
         for char in rack:
             if char in '*?':
-                score -= score_word(char)
-        return max(0, score) 
+                score -= score_word(char)  # Deduct wildcard points
+        return max(0, score)
 
     scored_words = [(adjusted_score(word), word) for word in valid_words]
 
+    # Sort by score (descending) and then alphabetically
     sorted_words = sorted(scored_words, key=lambda x: (-x[0], x[1]))
 
     return sorted_words, len(sorted_words)
+
