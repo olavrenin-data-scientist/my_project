@@ -4,13 +4,18 @@ from itertools import permutations, product
 from wordscore import score_word
 
 def load_scrabble_dictionary():
-    """Load the SOWPODS dictionary into a set for quick lookup."""
+    """
+    Load the SOWPODS dictionary into a set for quick lookup.
+    """
     with open("sowpods.txt", "r") as infile:
         return {word.strip().upper() for word in infile.readlines()}
 
-# Load dictionary once globally
+# Global dictionary (fast lookups)
 VALID_WORDS = load_scrabble_dictionary()
 
+
+
+from itertools import product, permutations
 
 def generate_valid_words(rack: str):
     """
@@ -19,28 +24,28 @@ def generate_valid_words(rack: str):
     rack = rack.upper()
     wildcards = rack.count('*') + rack.count('?')
 
-    # If no wildcards, just generate permutations normally
+    # If no wildcards, generate normal permutations
     if wildcards == 0:
         return {''.join(p) for i in range(2, len(rack) + 1) for p in permutations(rack, i) if ''.join(p) in VALID_WORDS}
 
     possible_words = set()
     base_rack = rack.replace('*', '').replace('?', '')  # Remove wildcards
 
-    # Find wildcard positions in the rack
+    # Identify wildcard positions
     wildcard_positions = [pos for pos, char in enumerate(rack) if char in '*?']
     
-    # Generate all possible replacements for wildcards (* and ?) using A-Z
+    # Generate all possible wildcard replacements (A-Z)
     wildcard_replacements = product("ABCDEFGHIJKLMNOPQRSTUVWXYZ", repeat=len(wildcard_positions))
 
     # Replace wildcards with all letters and generate words
     for replacement in wildcard_replacements:
         temp_rack = list(rack)
         for i, letter in enumerate(replacement):
-            temp_rack[wildcard_positions[i]] = letter  # Replace wildcards
+            temp_rack[wildcard_positions[i]] = letter  # Replace wildcard
 
         replaced_rack = ''.join(temp_rack)
 
-        # Generate permutations and check against dictionary
+        # Generate permutations and check dictionary
         for i in range(2, len(replaced_rack) + 1):
             for perm in permutations(replaced_rack, i):
                 word = "".join(perm)
@@ -48,6 +53,7 @@ def generate_valid_words(rack: str):
                     possible_words.add(word)
 
     return possible_words
+
 
 
 
@@ -72,11 +78,11 @@ def can_form_word(word, rack):
 
 def run_scrabble(rack: str):
     """
-    Find all valid Scrabble words from a given rack.
-    
+    Find all valid Scrabble words that can be formed from a given rack.
+
     Parameters:
-    rack (str): The letter tiles available (2-7 characters, A-Z, and at most one '*' and one '?').
-    
+    rack (str): The letter tiles available (2-7 characters, A-Z, at most one '*' and one '?').
+
     Returns:
     tuple: A list of (score, word) tuples sorted by score (descending) and alphabetically, 
            and the total count of valid words.
