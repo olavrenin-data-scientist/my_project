@@ -56,7 +56,14 @@ def run_scrabble(rack: str):
 
     valid_words = generate_valid_words(rack)
 
-    scored_words = [(score_word(word), word) for word in valid_words]
+    def adjusted_score(word):
+        score = score_word(word)
+        for char in rack:
+            if char in '*?':
+                score -= score_word(char)
+        return max(0, score) 
+
+    scored_words = [(adjusted_score(word), word) for word in valid_words]
 
     sorted_words = sorted(scored_words, key=lambda x: (-x[0], x[1]))
 
