@@ -72,11 +72,14 @@ def can_form_word(word, rack):
 
 def run_scrabble(rack: str):
     """
-    Main function to find all valid Scrabble words from a rack.
+    Find all valid Scrabble words from a given rack.
+    
+    Parameters:
+    rack (str): The letter tiles available (2-7 characters, A-Z, and at most one '*' and one '?').
     
     Returns:
-    - List of (score, word) tuples, sorted by score (descending) and alphabetically.
-    - Total number of valid words.
+    tuple: A list of (score, word) tuples sorted by score (descending) and alphabetically, 
+           and the total count of valid words.
     """
     # Input validation
     if not all(char.isalpha() or char in ['*', '?'] for char in rack):
