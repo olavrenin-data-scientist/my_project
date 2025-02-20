@@ -10,7 +10,7 @@ def load_scrabble_dictionary():
     with open("sowpods.txt", "r") as infile:
         return {word.strip().upper() for word in infile.readlines()}
 
-# Global dictionary (fast lookups)
+# Load dictionary once globally
 VALID_WORDS = load_scrabble_dictionary()
 
 
@@ -27,13 +27,11 @@ def generate_valid_words(rack: str):
 
     possible_words = set()
 
-    # Find wildcard positions
-    wildcard_positions = [pos for pos, char in enumerate(rack) if char in '*?']
-
     # Generate all possible wildcard replacements (A-Z)
+    wildcard_positions = [pos for pos, char in enumerate(rack) if char in '*?']
     wildcard_replacements = product("ABCDEFGHIJKLMNOPQRSTUVWXYZ", repeat=len(wildcard_positions))
 
-    # Replace wildcards and generate words
+    # Replace wildcards with all letters and generate words
     for replacement in wildcard_replacements:
         temp_rack = list(rack)
         for i, letter in enumerate(replacement):
@@ -49,6 +47,7 @@ def generate_valid_words(rack: str):
                     possible_words.add(word)
 
     return possible_words
+
 
 
 def run_scrabble(rack: str):
@@ -91,3 +90,4 @@ def run_scrabble(rack: str):
     sorted_words = sorted(scored_words, key=lambda x: (-x[0], x[1]))
 
     return sorted_words, len(sorted_words)
+
