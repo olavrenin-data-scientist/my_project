@@ -1,8 +1,8 @@
 from itertools import permutations, product
-from wordscore import score_word  # Assuming you have this module (define it separately)
+from wordscore import score_word 
 
 class ScrabbleSolver:
-    def __init__(self, dictionary_file="sowpods.txt"):  # Make dictionary file configurable
+    def __init__(self, dictionary_file="sowpods.txt"):
         self.valid_words = self.load_scrabble_dictionary(dictionary_file)
 
     def load_scrabble_dictionary(self, dictionary_file):
