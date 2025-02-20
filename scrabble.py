@@ -61,7 +61,3 @@ def run_scrabble(rack: str):
     sorted_words = sorted(scored_words, key=lambda x: (-x[0], x[1]))
 
     return sorted_words, len(sorted_words)
-
-
-result = run_scrabble("ZAEfiee") 
-print(result)
