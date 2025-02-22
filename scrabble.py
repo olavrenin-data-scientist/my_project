@@ -73,7 +73,7 @@ def run_scrabble(rack: str):
 
     # Generate valid words
     valid_words = generate_valid_words(rack)
-
+    # print(valid_words)
     # Compute scores, treating wildcards as 0 points
     def adjusted_score(word):
         """Compute the Scrabble score, treating wildcards as 0 points."""
@@ -84,10 +84,14 @@ def run_scrabble(rack: str):
         return max(0, score)
 
     # Generate (score, word) tuples
-    scored_words = [(adjusted_score(word), word) for word in valid_words]
+    scored_words = [(adjusted_score(rack), word) for word in valid_words]
 
     # Sort by score (descending) and then alphabetically
     sorted_words = sorted(scored_words, key=lambda x: (-x[0], x[1]))
 
     return sorted_words, len(sorted_words)
 
+
+
+
+print(run_scrabble('?a'))
