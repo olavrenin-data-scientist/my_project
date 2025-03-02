@@ -10,10 +10,11 @@ def count_retweets_by_username(tweet_list):
     username_counts = Counter()
 
     for tweet in tweet_list:
-        words = tweet.split()  # Split by spaces
-        for word in words:
-            if word.startswith('@') and 1 < len(word) <= 14:  # Ensure @ and valid length
-                username_counts[word] += 1  # Count occurrences
+        match = re.match(r'^RT @(\w{1,14})', tweet)  # Ensure retweet format
+        if match:
+            username = match.group(1)
+            username_counts[username] += 1  # Count only valid retweets
+
     return dict(username_counts)
 
 
