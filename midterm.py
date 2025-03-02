@@ -7,16 +7,14 @@ def count_retweets_by_username(tweet_list):
     retweeted in tweet_list and each value is the total number of times this 
     username was retweeted.
     """
-    username_counts = Counter()
-
+    retweet_pattern = re.compile(r'RT @([a-zA-Z0-9]{1,14}):')
+    
+    retweets = []
     for tweet in tweet_list:
-        match = re.match(r'^RT @(\w{1,14})', tweet)  # Ensure retweet format
-        if match:
-            username = match.group(1)
-            username_counts[username] += 1  # Count only valid retweets
-
-    return dict(username_counts)
-
+        if 1 <= len(tweet) <= 280:
+            retweeted_users = retweet_pattern.findall(tweet)
+            retweets.extend(retweeted_users)
+    return dict(Counter(retweets))
 
 
 def display(deposits, top, bottom, left, right):
