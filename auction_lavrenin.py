@@ -1,5 +1,4 @@
 import random
-from bidder_lavrenin import Bidder
 
 class User:
     '''Class to represent a user with a secret probability of clicking an ad.'''
@@ -71,14 +70,3 @@ class Auction:
         for bidder_id in self.bidders:
             if bidder_id != winner_id:
                 self.bidders[bidder_id].notify(False, second_highest_bid, False)
-
-        # Print round results
-        print(f"User {user_id} chosen. Winner: Bidder {winner_id}, Paid: {second_highest_bid}, Clicked: {clicked}")
-
-
-
-
-auction = Auction(num_users=10, num_bidders=5, num_rounds=20)
-for _ in range(auction.num_rounds):
-    auction.execute_round()
-
