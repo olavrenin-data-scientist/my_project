@@ -22,10 +22,13 @@ class User:
 class Auction:
     '''Class to represent an online second-price ad auction'''
     
-    def __init__(self, users, bidders):
+    def __init__(self, users, bidders, initial_balance=1000):
         '''Initializing users, bidders, and dictionary to store balances for each bidder in the auction'''
-        self.users= users  
-        self.bidders = bidders
+        self.users = users  # Dictionary {user_id: user_object}
+        self.bidders = bidders  # Dictionary {bidder_id: bidder_object}
+        self.balances = {bidder_id: 0 for bidder_id in bidders}  # All bidders start with 0 balance
+
+
 
     def __repr__(self):
         '''Return auction object with users and qualified bidders'''
