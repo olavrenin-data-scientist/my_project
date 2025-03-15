@@ -3,9 +3,8 @@ import random
 class User:
     '''Class to represent a user with a secret probability of clicking an ad.'''
 
-    def __init__(self, user_id):
+    def __init__(self):
         '''Generating a probability between 0 and 1 from a uniform distribution'''
-        self.user_id = user_id
         self.click_probability = random.uniform(0, 1)
 
     def __repr__(self):
@@ -23,10 +22,10 @@ class User:
 class Auction:
     '''Class to represent an online second-price ad auction'''
     
-    def __init__(self, num_users, num_bidders):
+    def __init__(self, users, bidders):
         '''Initializing users, bidders, and dictionary to store balances for each bidder in the auction'''
-        self.users = {i: User(i) for i in range(num_users)}  # Pass user_id to User constructor
-        self.bidders = {i: Bidder(num_users) for i in range(num_bidders)}
+        self.users= users  
+        self.bidders = bidders
 
     def __repr__(self):
         '''Return auction object with users and qualified bidders'''
