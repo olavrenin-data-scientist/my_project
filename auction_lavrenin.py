@@ -62,8 +62,9 @@ class Auction:
 
         # Ensure there are at least two valid bids
         if len(sorted_bids) < 2:
-            print("Not enough valid bids to determine a winner.")
-            return
+            second_highest_bid = sorted_bids[0][1]  # If only one bid, use it as second-highest
+        else:
+            second_highest_bid = sorted_bids[1][1]
 
         # Determine winner and second-highest bid
         winner = sorted_bids[0][0]  # ✅ Use object, not ID
