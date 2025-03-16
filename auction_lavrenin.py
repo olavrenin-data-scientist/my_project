@@ -54,7 +54,9 @@ class Auction:
         user = random.choice(self.users)
 
         # Collect bids from bidders
-        bids = {bidder_id: bidder.bid(user) for bidder_id, bidder in self.bidders.items()}
+        # bids = {bidder_id: bidder.bid(user) for bidder_id, bidder in self.bidders.items()}
+        # sorted_bids = sorted(bids.items(), key=lambda x: x[1], reverse=True)
+        bids = {bidder: bidder.bid(user) for bidder in self.bidders}
         sorted_bids = sorted(bids.items(), key=lambda x: x[1], reverse=True)
 
         # Ensure there are at least two valid bids
