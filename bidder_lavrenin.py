@@ -23,6 +23,15 @@ class Bidder:
     def notify(self, auction_winner, price, clicked):
         '''Updates bidder attributes based on results from an auction round'''
         if auction_winner:
+        # Winner pays the second-highest price (price is second-highest bid)
             self.balance -= price
             if clicked:
+                # If the user clicked the ad, the winner gets $1 reward
                 self.balance += 1
+        else:
+            # Loser does not pay for the ad (they didn't win)
+            if clicked:
+                # If the user clicked, losing bidders do not receive any reward
+                pass
+
+
