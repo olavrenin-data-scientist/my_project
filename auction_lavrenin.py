@@ -75,4 +75,4 @@ class Auction:
         # Notify the losing bidders
         for bidder_id in self.bidders:
             if bidder_id != winner_id:
-                  bidder_id.notify(False, second_highest_bid, False)
+                  bidder_id.notify(False, second_highest_bid, None)
