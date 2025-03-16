@@ -27,6 +27,10 @@ class Auction:
         self.users = users  # Dictionary {user_id: user_object}
         self.bidders = bidders  # Dictionary {bidder_id: bidder_object}
         self.balances = {bidder_id: 0 for bidder_id in bidders}  # All bidders start with 0 balance
+        for bidder in self.bidders:
+            if not hasattr(bidder, 'balance'):
+                bidder.balance = 0
+
 
     def __repr__(self):
         '''Return auction object with users and qualified bidders'''
