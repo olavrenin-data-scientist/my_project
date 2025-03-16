@@ -17,7 +17,7 @@ class User:
 
     def show_ad(self):
         '''Returns True to represent the user clicking on an ad or False otherwise'''
-        return random.random() < self._User__probability
+        return random.random() < self._User__probabilityi
 
 class Auction:
     '''Class to represent an online second-price ad auction'''
@@ -72,12 +72,13 @@ class Auction:
         clicked = user.show_ad()
 
         # Notify the winner and update their balance
-        self.bidders[winner_id].notify(True, second_highest_bid, clicked)
+        winner_id.notify(True, second_highest_bid, clicked)
+
 
         # Notify the losing bidders
         for bidder_id in self.bidders:
             if bidder_id != winner_id:
-                self.bidders[bidder_id].notify(False, second_highest_bid, False)
+                  bidder.notify(False, second_highest_bid, False)
 
         # Print updated balances
         print("\nUpdated Balances:")
