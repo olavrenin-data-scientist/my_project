@@ -5,19 +5,19 @@ class User:
 
     def __init__(self):
         '''Generating a probability between 0 and 1 from a uniform distribution'''
-        self.click_probability = random.uniform(0, 1)
+        self._User__probability = random.uniform(0, 1)
 
     def __repr__(self):
         '''User object with secret probability'''
-        return f"User(click_probability={self.click_probability:.2f})"
+        return f"User(click_probability={self._User__probability:.2f})"
 
     def __str__(self):
         '''User object with a secret likelihood of clicking on an ad'''
-        return f"User with click probability {self.click_probability:.2f}"
+        return f"User with click probability {self._User__probability:.2f}"
 
     def show_ad(self):
         '''Returns True to represent the user clicking on an ad or False otherwise'''
-        return random.random() < self.click_probability
+        return random.random() < self._User__probability
 
 class Auction:
     '''Class to represent an online second-price ad auction'''
