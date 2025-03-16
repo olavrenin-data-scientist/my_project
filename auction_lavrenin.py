@@ -28,8 +28,6 @@ class Auction:
         self.bidders = bidders  # Dictionary {bidder_id: bidder_object}
         self.balances = {bidder_id: 0 for bidder_id in bidders}  # All bidders start with 0 balance
 
-
-
     def __repr__(self):
         '''Return auction object with users and qualified bidders'''
         return f"Auction(users={len(self.users)}, bidders={len(self.bidders)})"
@@ -74,14 +72,7 @@ class Auction:
         # Notify the winner and update their balance
         winner_id.notify(True, second_highest_bid, clicked)
 
-
         # Notify the losing bidders
         for bidder_id in self.bidders:
             if bidder_id != winner_id:
-                  bidder.notify(False, second_highest_bid, False)
-
-        # Print updated balances
-        print("\nUpdated Balances:")
-        for bidder in self.bidders.values():
-            print(bidder)
-
+                  bidder_id.notify(False, second_highest_bid, False)
