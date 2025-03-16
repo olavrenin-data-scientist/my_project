@@ -17,7 +17,7 @@ class User:
 
     def show_ad(self):
         '''Returns True to represent the user clicking on an ad or False otherwise'''
-        return random.random() < self._User__probabilityi
+        return random.random() < self._User__probability
 
 class Auction:
     '''Class to represent an online second-price ad auction'''
