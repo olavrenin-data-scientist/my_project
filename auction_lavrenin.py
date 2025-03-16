@@ -75,3 +75,6 @@ class Auction:
         for bidder in self.bidders:
             if bidder != winner:
                 bidder.notify(False, second_highest_bid, None)
+        for bidder in self.bidders:
+            self.balances[bidder] = bidder.balance  
+
