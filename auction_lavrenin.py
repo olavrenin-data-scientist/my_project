@@ -47,14 +47,13 @@ class Auction:
             - notifying losing bidders of price'''
         if len(self.users) < 1 or len(self.bidders) < 2:
             print("Not enough users or bidders to run the auction.")
+            return
         
-        # Select a random user (from a list, not a dictionary)
+        # Select a random user (from a list)
         user = random.choice(self.users)
 
         # Collect bids from bidders
-        # bids = {bidder_id: bidder.bid(user) for bidder_id, bidder in self.bidders.items()}
-        # sorted_bids = sorted(bids.items(), key=lambda x: x[1], reverse=True)
-        bids = {bidder: bidder.bid(user) for bidder in self.bidders}
+        bids = {bidder: bidder.bid(user) for bidder in self.bidders.values()}
         sorted_bids = sorted(bids.items(), key=lambda x: x[1], reverse=True)
 
         # Ensure there are at least two valid bids
@@ -63,16 +62,18 @@ class Auction:
             return
 
         # Determine winner and second-highest bid
-        winner_id = sorted_bids[0][0]
+        winner = sorted_bids[0][0]
         second_highest_bid = sorted_bids[1][1]
 
         # Show ad to user and check for a click
         clicked = user.show_ad()
 
         # Notify the winner and update their balance
-        winner_id.notify(True, second_highest_bid, clicked)
+        winner.notify(True, second_highest_bid, clicked)
 
         # Notify the losing bidders
-        for bidder_id in self.bidders:
-            if bidder_id != winner_id:
-                  bidder_id.notify(False, second_highest_bid, False)
+        for bidder in self.bidders.values():
+            if bidder != winner:
+                bidder.notify(False, second_highest_bid, False)
+
+
