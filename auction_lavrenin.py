@@ -1,5 +1,4 @@
 import random
-from bidder_lavrenin import Bidder
 
 class User:
     '''Class to represent a user with a secret probability of clicking an ad.'''
@@ -23,12 +22,14 @@ class User:
 class Auction:
     '''Class to represent an online second-price ad auction'''
     
-    def __init__(self, num_users, num_bidders, num_rounds):
+    def __init__(self, users, bidders):
         '''Initializing users, bidders, and dictionary to store balances for each bidder in the auction'''
-        self.users = {i: User(i) for i in range(num_users)}  # Pass user_id to User constructor
-        self.bidders = {i: Bidder(num_users, num_rounds) for i in range(num_bidders)}
-        self.num_rounds = num_rounds
-        self.balances = {i: 0 for i in range(num_bidders)}  # Track balances
+        self.users = users  # Dictionary {user_id: user_object}
+        self.bidders = bidders  # Dictionary {bidder_id: bidder_object}
+        self.balances = {bidder_id: 0 for bidder_id in bidders}  # All bidders start with 0 balance
+        for bidder in self.bidders:
+            if not hasattr(bidder, 'balance'):
+                bidder.balance = 0
 
 
     def __repr__(self):
@@ -48,30 +49,37 @@ class Auction:
             - showing ad to user and finding out whether or not they click
             - notifying winning bidder of price and user outcome and updating balance
             - notifying losing bidders of price'''
-        user_id = random.choice(list(self.users.keys()))
-        user = self.users[user_id]
+        if len(self.users) < 1 or len(self.bidders) < 2:
+            print("Not enough users or bidders to run the auction.")
+            return
+    
+        # Select a random user
+        user = random.choice(self.users)
 
-        # Collect bids from bidders (each bidder now has an intelligent strategy)
-        bids = {bidder_id: self.bidders[bidder_id].bid(user_id) for bidder_id in self.bidders}
+        # Collect bids from bidders
+        bids = {bidder: bidder.bid(user) for bidder in self.bidders}
         sorted_bids = sorted(bids.items(), key=lambda x: x[1], reverse=True)
 
-        # Determine winner
+        # Ensure there are at least two valid bids
         if len(sorted_bids) < 2:
-            return  # Need at least 2 bidders
+            second_highest_bid = sorted_bids[0][1]  # If only one bid, use it as second-highest
+        else:
+            second_highest_bid = sorted_bids[1][1]
 
-        winner_id = sorted_bids[0][0]
+        # Determine winner and second-highest bid
+        winner = sorted_bids[0][0]  # ✅ Use object, not ID
         second_highest_bid = sorted_bids[1][1]
 
         # Show ad to user and check for a click
         clicked = user.show_ad()
 
-        # Update winner's balance
-        if clicked:
-            self.balances[winner_id] += 1  # Reward for click
-        self.balances[winner_id] -= second_highest_bid  # Deduct second-highest bid
-        self.bidders[winner_id].notify(True, second_highest_bid, clicked)
+        # Notify the winner and update their balance
+        winner.notify(True, second_highest_bid, clicked)
 
-        # Notify other bidders
-        for bidder_id in self.bidders:
-            if bidder_id != winner_id:
-                self.bidders[bidder_id].notify(False, second_highest_bid, None)
+        # Notify the losing bidders
+        for bidder in self.bidders:
+            if bidder != winner:
+                bidder.notify(False, second_highest_bid, None)
+        for bidder in self.bidders:
+            self.balances[bidder] = bidder.balance  
+
