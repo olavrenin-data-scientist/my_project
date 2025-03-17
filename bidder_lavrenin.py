@@ -1,12 +1,13 @@
 import random
+import numpy as np
 
 class Bidder:
     '''Class to represent a bidder in an online second-price ad auction'''
     def __init__(self, num_users, num_rounds):
         '''Setting number of users, number of rounds, and round counter'''
-        self.bidders = {i: Bidder(num_users, num_rounds) for i in range(num_bidders)}
-        self.num_rounds = num_rounds
-        self.balances = {i: 0 for i in range(num_bidders)}  # Track balances
+        self.user_clicks = {i: [] for i in range(num_users)}  # Track click history per user
+        self.epsilon = 0.1  # Exploration probability
+        self.balance = 0  # Ensure each bidder tracks its balance
 
     def __repr__(self):
        '''Return Bidder object'''
@@ -22,12 +23,13 @@ class Bidder:
             estimated_prob = 0.5  # Default when no data
         else:
             estimated_prob = np.mean(self.user_clicks[user_id])  # Estimate click-through rate
-        
-        # ε-greedy strategy: Explore with probability ε
+            
+            # ε-greedy strategy: Explore with probability ε
         if random.random() < self.epsilon:
             return round(random.uniform(0, 5), 3)  # Explore random bid
         else:
             return round(estimated_prob * 5, 3)  # Exploit estimated probability
+
 
     def notify(self, auction_winner, price, clicked):
         '''Updates bidder attributes based on results from an auction round'''
