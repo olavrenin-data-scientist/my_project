@@ -24,12 +24,9 @@ class Auction:
     
     def __init__(self, users, bidders):
         '''Initializing users, bidders, and dictionary to store balances for each bidder in the auction'''
-        self.users = users  # Dictionary {user_id: user_object}
-        self.bidders = bidders  # Dictionary {bidder_id: bidder_object}
-        self.balances = {bidder_id: 0 for bidder_id in bidders}  # All bidders start with 0 balance
-        for bidder in self.bidders:
-            if not hasattr(bidder, 'balance'):
-                bidder.balance = 0
+        self.users = users # List of users 
+        self.bidders = bidders # List of bidder objects 
+        self.balances = {bidder: 0 for bidder in self.bidders} # Track balances
 
 
     def __repr__(self):
@@ -49,39 +46,33 @@ class Auction:
             - showing ad to user and finding out whether or not they click
             - notifying winning bidder of price and user outcome and updating balance
             - notifying losing bidders of price'''
-        if len(self.users) < 1 or len(self.bidders) < 2:
-            print("Not enough users or bidders to run the auction.")
-            return
-    
-        # Select a random user
-        user = random.choice(self.users)
-
-        # Collect bids from bidders
-        bids = {bidder: bidder.bid(user) for bidder in self.bidders}
-        sorted_bids = sorted(bids.items(), key=lambda x: x[1], reverse=True)
-
-        # Ensure there are at least two valid bids
-        if len(sorted_bids) < 2:
-            second_highest_bid = sorted_bids[0][1]  # If only one bid, use it as second-highest
-        else:
-            second_highest_bid = sorted_bids[1][1]
-
-        # Determine winner and second-highest bid
-        winner = sorted_bids[0][0]  # ✅ Use object, not ID
-
-        # Show ad to user and check for a click
-        clicked = user.show_ad()
-
-        # Notify the winner and update their balance
-        winner.notify(True, second_highest_bid, clicked)
-
-        # Notify the losing bidders
-        for bidder in self.bidders:
-            if bidder != winner:
-                bidder.notify(False, second_highest_bid, None)
-        for bidder in self.bidders:
-            self.balances[bidder] = bidder.balance
-        print(f"Bids: {bids}") 
-        print(f"Winner: {winner}, Price Paid: {second_highest_bid}, Clicked: {clicked}") 
+        if len(self.users) < 1 or len(self.bidders) < 2:             
+            print("Not enough users or bidders to run the auction.")             
+            return         
+        # Select a random user         
+        user = random.choice(self.users)         
+        # Collect bids from bidders         
+        bids = {bidder: bidder.bid(user) for bidder in self.bidders}         
+        sorted_bids = sorted(bids.items(), key=lambda x: x[1], reverse=True)         
+        # Ensure at least one valid bid         
+        if len(sorted_bids) < 2:             
+            print("Not enough valid bids to determine a winner.")             
+            return        
+         # Determine winner and second-highest bid         
+        winner = sorted_bids[0][0]         
+        second_highest_bid = sorted_bids[1][1]         
+        # Show ad and check for a click         
+        clicked = user.show_ad()         
+        # 🏆 Reduce balance for winner         
+        self.balances[winner] -= second_highest_bid   # Pay the second-highest bid         
+        if clicked:             
+            self.balances[winner] += 1  # Add reward for a click         
+        # Notify bidders without modifying balance inside notify()         
+        winner.notify(True, second_highest_bid, clicked)         
+        for bidder in self.bidders:             
+            if bidder != winner:                 
+                bidder.notify(False, second_highest_bid, None)        
+         # Debugging logs         
+        print(f"Bids: {bids}")         
+        print(f"Winner: {winner}, Price Paid: {second_highest_bid}, Clicked: {clicked}")         
         print(f"Final Balances: {self.balances}")
-
