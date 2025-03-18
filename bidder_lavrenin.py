@@ -23,12 +23,9 @@ class Bidder:
     def notify(self, auction_winner, price, clicked):
         '''Updates bidder attributes based on results from an auction round'''
         print(f"Notify called for {self}, auction_winner={auction_winner}, price={price}, clicked={clicked}") 
-        # Debug print 
         if auction_winner: 
-            print(f"Before: {self.balance}") 
             self.balance -= price 
             if clicked: 
                 self.balance += 1 
-                print(f"After: {self.balance}") 
 
 

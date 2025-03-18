@@ -63,7 +63,7 @@ class Auction:
         second_highest_bid = sorted_bids[1][1]         
         # Show ad and check for a click         
         clicked = user.show_ad()         
-        # 🏆 Reduce balance for winner         
+        # Reduce balance for winner         
         self.balances[winner] -= second_highest_bid   # Pay the second-highest bid         
         if clicked:             
             self.balances[winner] += 1  # Add reward for a click         
@@ -71,8 +71,4 @@ class Auction:
         winner.notify(True, second_highest_bid, clicked)         
         for bidder in self.bidders:             
             if bidder != winner:                 
-                bidder.notify(False, second_highest_bid, None)        
-         # Debugging logs         
-        print(f"Bids: {bids}")         
-        print(f"Winner: {winner}, Price Paid: {second_highest_bid}, Clicked: {clicked}")         
-        print(f"Final Balances: {self.balances}")
+                bidder.notify(False, second_highest_bid, None)
