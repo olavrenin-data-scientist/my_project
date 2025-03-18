@@ -68,7 +68,6 @@ class Auction:
 
         # Determine winner and second-highest bid
         winner = sorted_bids[0][0]  # ✅ Use object, not ID
-        second_highest_bid = sorted_bids[1][1]
 
         # Show ad to user and check for a click
         clicked = user.show_ad()

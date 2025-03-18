@@ -22,11 +22,11 @@ class Bidder:
 
     def notify(self, auction_winner, price, clicked):
         '''Updates bidder attributes based on results from an auction round'''
-        if auction_winner:
-            self.balance -= price  # Deduct the winning price
-            if clicked:
-                self.balance += 1  # Add $1 reward if user clicked
-        elif clicked is not None:
-            raise ValueError("Losing bidders should receive clicked=None")
+        if auction_winner: 
+            print(f"Before: {self.balance}") 
+            self.balance -= price 
+            if clicked: 
+                self.balance += 1 
+                print(f"After: {self.balance}")
 
 
