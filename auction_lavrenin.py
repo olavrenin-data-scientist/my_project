@@ -80,5 +80,8 @@ class Auction:
             if bidder != winner:
                 bidder.notify(False, second_highest_bid, None)
         for bidder in self.bidders:
-            self.balances[bidder] = bidder.balance  
+            self.balances[bidder] = bidder.balance
+        print(f"Bids: {bids}") 
+        print(f"Winner: {winner}, Price Paid: {second_highest_bid}, Clicked: {clicked}") 
+        print(f"Final Balances: {self.balances}")
 
